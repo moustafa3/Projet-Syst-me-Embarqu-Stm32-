@@ -1,0 +1,58 @@
+#ifndef TSL2561_INC_OPTO_H_
+#define TSL2561_INC_OPTO_H_
+
+#include <stdint.h>
+
+//int opto_read(int *opto);
+////////////////////////////////////////////////////////////
+/*
+void opto_init();
+int Ac_read_id();
+
+int ac_read_x(uint8_t* data_rec_acx);
+int combination_acx(uint8_t* data_rec_acx);
+
+int ac_read_y(uint8_t* data_rec_acy);
+int combination_acy(uint8_t* data_rec_acy);
+
+int ac_read_z(uint8_t* data_rec_acz);
+int combination_acz(uint8_t* data_rec_acz);
+
+int ge_read_x(uint8_t* data_rec_gex);
+int combination_gex(uint8_t* data_rec_gex);
+
+int ge_read_y(uint8_t* data_rec_gey);
+int combination_gey(uint8_t* data_rec_gey);
+
+int ge_read_z(uint8_t* data_rec_gez);
+int combination_gez(uint8_t* data_rec_gez);
+*/
+///////////////////////////////////////////////////////
+
+int ac_read_x();
+int ac_read_y();
+int ac_read_z();
+
+float ge_read_x();
+float ge_read_y();
+float ge_read_z();
+
+
+
+
+//int ac_read_x();
+//int ac_read_x1();
+//int ac_read_x2();
+//int ac_read_y1();
+//int ac_read_y2();
+//int ac_read_z1();
+//int ac_read_z2();
+
+//int ge_read_x1();
+//int ge_read_x2();
+//int ge_read_y1();
+//int ge_read_y2();
+//int ge_read_z1();
+//int ge_read_z2();
+
+#endif

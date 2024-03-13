@@ -1,0 +1,6 @@
+01:46:52 **** Incremental Build of configuration Debug for project nucleoF411_base ****
+make -j8 all 
+make: Nothing to be done for 'all'.
+
+01:46:53 Build Finished. 0 errors, 0 warnings. (took 174ms)
+

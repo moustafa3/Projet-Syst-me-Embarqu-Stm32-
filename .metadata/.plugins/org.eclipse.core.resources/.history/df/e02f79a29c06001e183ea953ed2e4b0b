@@ -1,0 +1,593 @@
+#include "TSL2561/inc/opto.h"
+#include "stm32f4xx_hal_i2c.h"
+#include <stdio.h>
+#include <math.h>
+
+#define OPTO_ADDRESS 0x6a
+
+extern I2C_HandleTypeDef hi2c1;
+
+void opto_init()
+{
+  uint8_t data[2];
+
+  data[0] = 0x18; //activation des axes linear acceleration sesnsor register
+  data[1] = 0x3c; //Mode de mesure continu, temps d'intégration de 402 ms
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data, 2); // Envoi de données via I2C
+  //HAL_Delay(100);
+
+  uint8_t data1[2];
+  data1[0] = 0x19; //control register
+  data1[1] = 0x3c;
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data1, 2);
+
+  uint8_t data2[2];
+  data2[0] = 0x10;  //linear acceleration sensor control register parametre  +-8g
+  data2[1] = 0x4c;
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data2, 2);
+
+  uint8_t data3[2];
+  data3[0] = 0x11; //angular rate sensor controle register parametre 2000dps
+  data3[1] = 0x8e;
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data3, 2);
+
+
+}
+
+/*void opto_init()
+{
+  uint8_t data[2];
+
+  data[0] = 0x18; //activation des axes linear acceleration sesnsor register
+  data[1] = 0x3c; //Mode de mesure continu, temps d'intégration de 402 ms
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data, 2); // Envoi de données via I2C
+  //HAL_Delay(100);
+
+  uint8_t data1[2];
+  data1[0] = 0x19; //control register
+  data1[1] = 0x3c;
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data1, 2);
+
+  uint8_t data2[2];
+  data2[0] = 0x10;  //linear acceleration sensor control register parametre  +-8g
+  data2[1] = 0x48;
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data2, 2);
+
+  uint8_t data3[2];
+  data3[0] = 0x11; //angular rate sensor controle register parametre 2000dps
+  data3[1] = 0x8e;
+  HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data3, 2);
+
+
+}*/
+//int opto_read(int *opto)
+int Ac_read_id()
+{
+	uint8_t data_send_ac=0x0f;
+	uint8_t data_rec_ac[1];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_ac, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_ac, 1);
+
+	// Analyse des données reçues
+
+	int ret_value = (int)data_rec_ac[0];
+
+	return ret_value;
+
+}
+/*
+int ac_read_x1()
+{
+	uint8_t data_send_acx1=0x29;
+	uint8_t data_rec_acx1[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_acx1, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx1, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_acx1 = (int)data_rec_acx1[0];
+	//int ret_value_acx = ((int16_t)data_rec_acx[0] <<8) | data_rec_acx[1] ;
+
+	int ret_value_acx1 = ((int16_t)data_rec_acx1[0] << 8) | data_rec_acx1[1];
+
+	return ret_value_acx1;
+
+}
+
+
+int ac_read_x2()
+{
+	uint8_t data_send_acx2=0x28;
+	uint8_t data_rec_acx2[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_acx2, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx2, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_acx2 = (int)data_rec_acx2[0];
+	int ret_value_acx2 = ((int16_t)data_rec_acx2[0] << 8) | data_rec_acx2[1];
+	return ret_value_acx2;
+
+}
+*/
+/*
+int ac_read_x()
+{
+	uint8_t data_send_acx[2];
+	uint8_t data_rec_acx[2];
+
+    data_send_acx[0]=0x29;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acx, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx, 1);
+
+    data_send_acx[1]=0x28;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acx, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx, 1);
+	// Analyse des données reçues
+
+	int ret_value_acx = ((int16_t)data_rec_acx[0] <<8) | data_rec_acx[1] ;
+
+	return ret_value_acx;
+
+}
+*/
+
+
+ int ac_read_x()
+{
+	uint8_t data_send_acx[2];
+	uint8_t data_rec_acx[2];
+
+    data_send_acx[0]=0x29;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acx, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx, 1);
+
+    data_send_acx[1]=0x28;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acx, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx, 1);
+	// Analyse des données reçues
+
+	int ret_value_acx = ((int16_t)data_rec_acx[0] <<8) | data_rec_acx[1] ;
+
+	return ret_value_acx;
+
+}
+
+ int ac_read_y()
+{
+	uint8_t data_send_acy[2];
+	uint8_t data_rec_acy[2];
+
+    data_send_acy[0]=0x2b;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acy, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acy, 1);
+
+    data_send_acy[1]=0x2a;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acy, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acy, 1);
+	// Analyse des données reçues
+
+	int ret_value_acy = (int)((int)(data_rec_acy[0]) <<8) | data_rec_acy[1] ;
+
+
+
+	if(ret_value_acy>32767){
+		ret_value_acy=-(2^16-ret_value_acy);
+	}
+
+	return ret_value_acy;
+
+}
+
+ int ac_read_z()
+{
+	uint8_t data_send_acz[2];
+	uint8_t data_rec_acz[2];
+
+    data_send_acz[0]=0x2d;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acz, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acz, 1);
+
+    data_send_acz[1]=0x28;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acz, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acz, 1);
+	// Analyse des données reçues
+
+	int ret_value_acz = ((int16_t)data_rec_acz[0] <<8) | data_rec_acz[1] ;
+
+	return ret_value_acz;
+
+}
+ int ge_read_x()
+{
+	uint8_t data_send_gex[2];
+	uint8_t data_rec_gex[2];
+
+    data_send_gex[0]=0x23;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gex, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gex, 1);
+
+    data_send_gex[1]=0x22;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gex, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gex, 1);
+	// Analyse des données reçues
+
+	int ret_value_gex = ((int16_t)data_rec_gex[0] <<8) | data_rec_gex[1] ;
+
+	return ret_value_gex;
+
+}
+
+ int ge_read_y()
+{
+	uint8_t data_send_gey[2];
+	uint8_t data_rec_gey[2];
+
+    data_send_gey[0]=0x25;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gey, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gey, 1);
+
+    data_send_gey[1]=0x24;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gey, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gey, 1);
+	// Analyse des données reçues
+
+	int ret_value_gey = ((int16_t)data_rec_gey[0] <<8) | data_rec_gey[1] ;
+
+	return ret_value_gey;
+
+}
+
+ int ge_read_z()
+{
+	uint8_t data_send_gez[2];
+	uint8_t data_rec_gez[2];
+
+    data_send_gez[0]=0x27;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gez, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gez, 1);
+
+    data_send_gez[1]=0x26;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gez, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gez, 1);
+	// Analyse des données reçues
+
+	int ret_value_gez = ((int16_t)data_rec_gez[0] <<8) | data_rec_gez[1] ;
+
+	return ret_value_gez;
+
+}
+
+/*
+int ac_read_x(uint8_t* data_rec_acx)
+{
+	uint8_t data_send_acx[2];
+
+    data_send_acx[0]=0x29;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acx, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx, 1);
+
+    data_send_acx[1]=0x28;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acx, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acx , 1);
+	// Analyse des données reçues
+
+}
+
+int combination_acx(uint8_t* data_rec_acx){
+
+	int ret_value_acx = ((int16_t)data_rec_acx[0] <<8) | data_rec_acx[1] ;
+    return ret_value_acx;
+
+}
+
+int ac_read_y(uint8_t* data_rec_acy)
+{
+	uint8_t data_send_acy[2];
+
+    data_send_acy[0]=0x2b;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acy, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acy, 1);
+
+    data_send_acy[1]=0x2a;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acy, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acy , 1);
+	// Analyse des données reçues
+
+}
+
+int combination_acy(uint8_t* data_rec_acy){
+
+	int ret_value_acy = ((int16_t)data_rec_acy[0] <<8) | data_rec_acy[1] ;
+    return ret_value_acy;
+
+}
+
+int ac_read_z(uint8_t* data_rec_acz)
+{
+	uint8_t data_send_acz[2];
+
+    data_send_acz[0]=0x2d;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acz, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acz, 1);
+
+    data_send_acz[1]=0x2c;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_acz, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acz , 1);
+	// Analyse des données reçues
+
+}
+
+int combination_acz(uint8_t* data_rec_acz){
+
+	int ret_value_acz = ((int16_t)data_rec_acz[0] <<8) | data_rec_acz[1] ;
+    return ret_value_acz;
+
+}
+
+int ge_read_x(uint8_t* data_rec_gex)
+{
+	uint8_t data_send_gex[2];
+
+    data_send_gex[0]=0x23;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gex, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gex, 1);
+
+    data_send_gex[1]=0x22;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gex, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gex , 1);
+	// Analyse des données reçues
+
+}
+
+int combination_gex(uint8_t* data_rec_gex){
+
+	int ret_value_gex = ((int16_t)data_rec_gex[0] <<8) | data_rec_gex[1] ;
+    return ret_value_gex;
+
+}
+
+int ge_read_y(uint8_t* data_rec_gey)
+{
+	uint8_t data_send_gey[2];
+
+    data_send_gey[0]=0x25;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gey, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gey, 1);
+
+    data_send_gey[1]=0x24;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gey, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gey , 1);
+	// Analyse des données reçues
+
+}
+
+int combination_gey(uint8_t* data_rec_gey){
+
+	int ret_value_gey = ((int16_t)data_rec_gey[0] <<8) | data_rec_gey[1] ;
+    return ret_value_gey;
+
+}
+
+int ge_read_z(uint8_t* data_rec_gez)
+{
+	uint8_t data_send_gez[2];
+
+    data_send_gez[0]=0x27;
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gez, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gez, 1);
+
+    data_send_gez[1]=0x26;
+    HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, data_send_gez, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_gez , 1);
+	// Analyse des données reçues
+
+}
+
+int combination_gez(uint8_t* data_rec_gez){
+
+	int ret_value_gez = ((int16_t)data_rec_gez[0] <<8) | data_rec_gez[1] ;
+    return ret_value_gez;
+
+}
+
+*/
+/*
+int ac_read_y1()
+{
+	uint8_t data_send_acy1=0x2b;
+	uint8_t data_rec_acy1[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_acy1, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acy1, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_acy1 = (int)data_rec_acy1[0];
+	int16_t ret_value_acy1 = (data_rec_acy1[0] << 8) | data_rec_acy1[1];
+
+	return ret_value_acy1;
+
+}
+
+
+int ac_read_y2()
+{
+	uint8_t data_send_acy2=0x2a;
+	uint8_t data_rec_acy2[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_acy2, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acy2, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_acy2 = (int)data_rec_acy2[0];
+	int16_t ret_value_acy2 = (data_rec_acy2[0] << 8) | data_rec_acy2[1];
+
+	return ret_value_acy2;
+
+}
+
+int ac_read_z1()
+{
+	uint8_t data_send_acz1=0x2d;
+	uint8_t data_rec_acz1[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_acz1, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acz1, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_acz1 = (int)data_rec_acz1[0];
+	int16_t ret_value_acz1 = (data_rec_acz1[0] << 8) | data_rec_acz1[1];
+
+	return ret_value_acz1;
+
+}
+
+int ac_read_z2()
+{
+	uint8_t data_send_acz2=0x2c;
+	uint8_t data_rec_acz2[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_acz2, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_acz2, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_acz2 = (int)data_rec_acz2[0];
+	int16_t ret_value_acz2 = (data_rec_acz2[0] << 8) | data_rec_acz2[1];
+
+	return ret_value_acz2;
+
+}
+
+
+int ge_read_x1()
+{
+	uint8_t data_send_gex1=0x23;
+	uint8_t data_rec_agex1[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_gex1, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_agex1, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_gex1 = (int)data_rec_agex1[0];
+	int16_t ret_value_gex1 = (data_rec_agex1[0] << 8) | data_rec_agex1[1];
+
+	return ret_value_gex1;
+
+}
+
+int ge_read_x2()
+{
+	uint8_t data_send_gex2=0x22;
+	uint8_t data_rec_agex2[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_gex2, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_agex2, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_gex1 = (int)data_rec_agex2[0];
+	int16_t ret_value_gex1 = (data_rec_agex2[0] << 8) | data_rec_agex2[1];
+
+	return ret_value_gex1;
+
+}
+
+int ge_read_y1()
+{
+	uint8_t data_send_gey1=0x25;
+	uint8_t data_rec_agey1[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_gey1, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_agey1, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_gey1 = (int)data_rec_agey1[0];
+	int16_t ret_value_gey1 = (data_rec_agey1[0] << 8) | data_rec_agey1[1];
+
+	return ret_value_gey1;
+
+}
+
+int ge_read_y2()
+{
+	uint8_t data_send_gey2=0x24;
+	uint8_t data_rec_agey2[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_gey2, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_agey2, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_gey2 = (int)data_rec_agey2[0];
+	int16_t ret_value_gey2 = (data_rec_agey2[0] << 8) | data_rec_agey2[1];
+
+	return ret_value_gey2;
+
+}
+
+int ge_read_z1()
+{
+	uint8_t data_send_gez1=0x27;
+	uint8_t data_rec_agez1[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_gez1, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_agez1, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_gez1 = (int)data_rec_agez1[0];
+	int16_t ret_value_gez1 = (data_rec_agez1[0] << 8) | data_rec_agez1[1];
+
+	return ret_value_gez1;
+
+}
+
+int ge_read_z2()
+{
+	uint8_t data_send_gez2=0x26;
+	uint8_t data_rec_agez2[2];
+
+	HAL_I2C_Master_Transmit_IT(&hi2c1, OPTO_ADDRESS, &data_send_gez2, 1);
+	HAL_I2C_Master_Receive_IT(&hi2c1, OPTO_ADDRESS, data_rec_agez2, 1);
+
+	// Analyse des données reçues
+
+	//int ret_value_gez2 = (int)data_rec_agez2[0];
+	int16_t ret_value_gez2 = (data_rec_agez2[0] << 8) | data_rec_agez2[1];
+
+	return ret_value_gez2;
+
+}
+*/
+/*int ch0 = (int)rxbuf[1]<<8 + (int)rxbuf[0];
+int ch1 = (int)rxbuf[2]<<8 + (int)rxbuf[3];
+
+if (0<ch1/ch0<0.25)
+	{
+		*opto=(0.105*ch0)-(0.208*ch1);
+	}
+else if (0.25<ch1/ch0<0.38)
+	{
+		*opto=(0.1088*ch0)-(0.2231*ch1);
+	}
+else if (0.38<ch1/ch0<0.45)
+	{
+		*opto=(0.0729*ch0)-(0.1286*ch1);
+	}
+else if (0.45<ch1/ch0<0.60)
+	{
+		*opto=(0.060*ch0)-(0.10*ch1);
+	}
+else if (ch1/ch0>0.60)
+	{
+		*opto=0;
+	}*/

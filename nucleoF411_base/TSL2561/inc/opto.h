@@ -1,0 +1,24 @@
+#ifndef TSL2561_INC_OPTO_H_
+#define TSL2561_INC_OPTO_H_
+
+#include <stdint.h>
+
+//int opto_read(int *opto);
+void opto_init();
+int Ac_read_id();
+
+int ac_read_x1();
+int ac_read_x2();
+int ac_read_y1();
+int ac_read_y2();
+int ac_read_z1();
+int ac_read_z2();
+
+int ge_read_x1();
+int ge_read_x2();
+int ge_read_y1();
+int ge_read_y2();
+int ge_read_z1();
+int ge_read_z2();
+
+#endif
